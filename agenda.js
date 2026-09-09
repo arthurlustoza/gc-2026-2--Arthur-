@@ -8,10 +8,6 @@ const mensagem = document.getElementById("mensagem");
 const lista = document.getElementById("lista");
 const aviso = document.getElementById("aviso");
 
-// O localStorage nem sempre esta disponivel: abrindo o arquivo direto do disco
-// (file://), em aba anonima, ou com o navegador bloqueando dados de site, o
-// acesso lanca excecao. Quando isso acontece a agenda continua funcionando na
-// memoria; so nao guarda ao fechar a pagina.
 let memoria = [];
 let temArmazenamento = true;
 
@@ -45,6 +41,12 @@ function horarioOcupado(consultas, nova) {
   return consultas.some(
     (c) => c.data === nova.data && c.hora === nova.hora && c.profissional === nova.profissional
   );
+}
+
+function contarConsultasNoDia(consultas, profissional, data) {
+  return consultas.filter(
+    (c) => c.profissional === profissional && c.data === data
+  ).length;
 }
 
 function renderizar() {
@@ -85,7 +87,10 @@ formulario.addEventListener("submit", (evento) => {
 
   consultas.push(nova);
   salvar(consultas);
-  mensagem.textContent = "Consulta agendada.";
+
+  const totalNoDia = contarConsultasNoDia(consultas, nova.profissional, nova.data);
+  mensagem.textContent = `Consulta agendada. ${nova.profissional} possui ${totalNoDia} consulta(s) no dia ${nova.data}.`;
+
   formulario.reset();
   renderizar();
 });
